@@ -1,0 +1,58 @@
+buildscript {
+    ext {
+        kotlinVersion = '1.0.1-2'
+        dropwizardVersion = '0.9.2'
+        mainClass = 'co.instil.imagelabeller.WebImageLabeller'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
+    }
+}
+
+plugins {
+    id "us.kirchmeier.capsule" version "1.0.2"
+}
+
+group 'co.instil.image-labeller'
+version '1.0.0'
+
+apply plugin: 'kotlin'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+    compile 'com.google.apis:google-api-services-vision:v1-rev2-1.21.0'
+    compile 'com.google.api-client:google-api-client:1.21.0'
+    compile "io.dropwizard:dropwizard-core:${dropwizardVersion}"
+    compile "io.dropwizard:dropwizard-assets:${dropwizardVersion}"
+    compile "io.dropwizard:dropwizard-forms:${dropwizardVersion}"
+}
+
+task buildCapsule(type: FatCapsule) {
+    applicationClass mainClass
+}
+build.dependsOn buildCapsule
+
+task run(type: JavaExec) {
+    environment('GOOGLE_APPLICATION_CREDENTIALS', 'src/main/resources/credentials.json')
+    environment('GOOGLE_APPLICATION_NAME', 'PeeWee')
+    main = 'co.instil.imagelabeller.ImageLabellerKt'
+    if (project.hasProperty('appArgs')) {
+        args(appArgs.split(','))
+    }
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task runServer(type: JavaExec) {
+    environment('GOOGLE_APPLICATION_CREDENTIALS', 'src/main/resources/credentials.json')
+    environment('GOOGLE_APPLICATION_NAME', 'PeeWee')
+    main = 'co.instil.imagelabeller.WebImageLabeller'
+    classpath = sourceSets.main.runtimeClasspath
+    args = ['server', './src/main/resources/config.yml']
+}

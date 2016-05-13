@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Labeller</title>
+</head>
+<body>
+<input type="file" id="image" name="image"/>
+<p>Max results: <input type="number" min="5" max="20" value="5" id="maxResults"/></p>
+<button onclick="postImage()">Label This!</button>
+<p>
+    <img id="displayImage" width="500" height="400"/>
+</p>
+<ul id="labels"></ul>
+
+<script>
+    document.getElementById('image').onchange = function (evt) {
+        clearLabelList();
+        var tgt = evt.target || window.event.srcElement,
+                files = tgt.files;
+        var fr = new FileReader();
+        fr.onload = function () {
+            document.getElementById("displayImage").src = fr.result;
+        };
+        fr.readAsDataURL(files[0]);
+    };
+    function clearLabelList() {
+        var labelList = document.getElementById("labels");
+        while (labelList.hasChildNodes()) {
+            labelList.removeChild(labelList.lastElementChild);
+        }
+    }
+    function getMaxResults() {
+        var maxResults = document.getElementById("maxResults");
+        return maxResults.value;
+    }
+    function postImage() {
+        clearLabelList();
+        var formData = new FormData();
+        formData.append("image", document.getElementById("image").files[0])
+        var xhr = new XMLHttpRequest();
+        var maxResults = getMaxResults();
+        xhr.open("POST", "/label?maxResults=" + maxResults);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                handleResponse(xhr.responseText);
+            }
+        };
+        xhr.send(formData);
+    }
+    function handleResponse(labelJson) {
+        var labels = JSON.parse(labelJson);
+        var labelList = document.getElementById("labels");
+        labelList.remove
+        console.log(labels);
+        labels.forEach(function(label) {
+            var labelNode = document.createElement("li");
+            labelNode.innerHTML = label.description + " (" + label.score + ")";
+            labelList.appendChild(labelNode);
+        });
+    }
+</script>
+</body>
+</html>
