@@ -1,5 +1,5 @@
-FROM instil/java-base
-MAINTAINER Gareth Fleming <gareth.fleming@instil.co>
+FROM joocy/java-base
+MAINTAINER Gareth Fleming <gareth@joocy.com>
 
 ADD build/libs/image-labeller-1.0.0-capsule.jar /app/image-labeller.jar
 ADD src/main/resources/credentials.json /app/credentials.json
